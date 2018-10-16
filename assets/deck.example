@@ -1,0 +1,67 @@
+return (
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+
+const path = require('path');
+
+module.exports = {
+    target: 'node-webkit',
+    entry: './ts/index.ts',
+    output: {
+        filename: './dist/script.js'
+    },
+    devtool: 'source-map', // any 'source-map'-like devtool is possible
+    module: {
+        rules: [
+            {
+                test: /\.vue$/,
+                loader: 'vue-loader'
+            },
+            {
+                test: /\.ts$/,
+                loader: 'ts-loader',
+                exclude: /node_modules/,
+                options: {
+                    appendTsSuffixTo: [/\.vue$/]
+                }
+            },
+            { test: /\.png$/, loader: 'url-loader?mimetype=image/png' },
+            {
+                test: /\.scss$/,
+                use: extractSass.extract({
+                    use: [{
+                        loader: 'css-loader', options: { sourceMap: true }
+                    }, {
+                        loader: 'sass-loader', options: { sourceMap: true }
+                    }]
+                    // use style-loader in development
+                })
+            },
+            {
+                test: /\.svg$/,
+                loader: 'svg-inline-loader'
+            }
+
+        ]
+    },
+    plugins: [
+        new ExtractTextPlugin({
+            filename: './dist/main.css'
+        });
+    ],
+    devServer: {
+        contentBase: path.resolve(__dirname, './img'),
+        compress: true,
+        port: 8080,
+        stats: 'errors-only',
+        open: true
+    },
+    resolve: {
+        /* https://github.com/vuejs-templates/webpack/issues/215 */
+        alias: {
+            vue: 'vue/dist/vue.js'
+        },
+        extensions: ['.ts', '.tsx', '.js']
+    },
+    mode: 'production'
+};
+)
